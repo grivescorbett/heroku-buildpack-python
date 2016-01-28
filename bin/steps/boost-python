@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+BP_SRC="http://downloads.sourceforge.net/project/boost/boost/1.48.0/boost_1_48_0.tar.gz?r=&ts=1454019332&use_mirror=vorboss"
+
+# Syntax sugar.
+source $BIN_DIR/utils
+
+if [ ! -f "/app/.heroku/vendor/lib/libboost_python.so" ]; then
+	echo "-----> Noticied pyhash.  Bootstrapping Boost-Python."
+	mkdir -p .heroku/vendor
+	mkdir -p .heroku/bp
+
+	curl -L $BP_SRC -s | tar xzv -C .heroku/bp &> /dev/null
+	cd .heroku/bp/boost_1_48_0
+	./bootstrap.sh --prefix=/app/.heroku/vendor --with-libraries=python
+	./b2 && ./b2 install
+	cd && rm -rf .heroku/bp
+fi
+
+CFLAGS="-I/app/.heroku/vendor/include" LDFLAGS="-L/app/.heroku/vendor/lib" pip install pyhash==0.6.2

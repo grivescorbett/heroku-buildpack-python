@@ -192,6 +192,9 @@ source $BIN_DIR/steps/cryptography
 # GDAL support.
 source $BIN_DIR/steps/gdal
 
+# Boost Python support
+source $BIN_DIR/steps/boost-python
+
 # Install dependencies with Pip.
 source $BIN_DIR/steps/pip-install
 
