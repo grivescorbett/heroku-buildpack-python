@@ -89,7 +89,7 @@ SCIPY_VERSIONS=(0.13.3 0.14.0 0.15.1)
 
 cat requirements.txt
 
-if (pip-grep --silent requirements.txt numpy scipy &> /dev/null); then
+if (pip-grep -s requirements.txt numpy scipy &> /dev/null); then
   puts-step "Detected numpy/scipy in requirements.txt."
   cd .heroku
 
