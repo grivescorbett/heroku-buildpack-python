@@ -21,9 +21,9 @@ function install_binaries {
   else
     puts-step "Downloading BLAS/LAPACK/ATLAS/Fortran binaries."
     # Download and extract everything into target vendor directory.
-    curl -O "${VENDORED_GIT_PREFIX}/npscipy.tar.gz"
-    tar -xzf npscipy.tar.gz &> /dev/null
-    rm -f npscipy.tar.gz
+    curl -O "${VENDORED_GIT_PREFIX}/npscipy2.tar.gz"
+    tar -xzf npscipy2.tar.gz &> /dev/null
+    rm -f npscipy2.tar.gz
   fi
   set-env BLAS $(pwd)/vendor/lib/atlas-base/atlas/libblas.a
   set-env LAPACK $(pwd)/vendor/lib/atlas-base/atlas/liblapack.a
