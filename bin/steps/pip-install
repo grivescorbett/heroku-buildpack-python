@@ -1,3 +1,9 @@
+if [ ! -f "/app/.heroku/vendor/lib/atlas-base/atlas/libblas.so.3" ]; then
+  puts-step "Symlinking deps..."
+  ln -s /app/.heroku/vendor/lib/atlas-base/atlas/libblas.so /app/.heroku/vendor/lib/atlas-base/atlas/libblas.so.3
+  ln -s /app/.heroku/vendor/lib/atlas-base/atlas/liblapack.so /app/.heroku/vendor/lib/atlas-base/atlas/liblapack.so.3
+fi
+
 # Install dependencies with Pip.
 puts-step "Installing dependencies with pip"
 

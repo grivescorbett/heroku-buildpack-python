@@ -101,8 +101,6 @@ if (pip-grep -s requirements.txt numpy scipy &> /dev/null); then
   cd ..
 fi
 
-if [ ! -f "/app/.heroku/vendor/lib/atlas-base/atlas/libblas.so.3" ]; then
-  ln -s /app/.heroku/vendor/lib/atlas-base/atlas/libblas.so /app/.heroku/vendor/lib/atlas-base/atlas/libblas.so.3
-fi
+
 
 
