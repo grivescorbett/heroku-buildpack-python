@@ -39,6 +39,7 @@ function install_prebuilt {
 
   # First ensure that the package is specified
   if ! $(pip-grep --silent requirements.txt $pkg); then
+    puts-step "$pkg not specified!"
     return
   fi
 
