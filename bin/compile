@@ -192,11 +192,11 @@ source $BIN_DIR/steps/cryptography
 # GDAL support.
 source $BIN_DIR/steps/gdal
 
-# Scientific packages
-source $BIN_DIR/steps/scientific
-
 # Boost Python support
 source $BIN_DIR/steps/boost-python
+
+# Scientific packages
+source $BIN_DIR/steps/scientific
 
 # Install dependencies with Pip.
 source $BIN_DIR/steps/pip-install
