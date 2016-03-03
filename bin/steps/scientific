@@ -38,18 +38,18 @@ function install_prebuilt {
   local install_version=""
 
   # First ensure that the package is specified
-  if ! $(pip-grep -s $REQ_TXT $pkg); then
+  if ! $(pip-grep --silent $REQ_TXT $pkg); then
     return
   fi
 
   # Now determine the version used.
   # If no version is specified, the default version is used (last version in the array passed).
-  if [[ $(pip-grep -s --print-req $REQ_TXT $pkg) == "$pkg" ]]; then
+  if [[ $(pip-grep --silent --print-req $REQ_TXT $pkg) == "$pkg" ]]; then
     install_version=${versions[${#versions[@]} - 1]}
     puts-step "No version specified for $pkg. Using $install_version."
   else
     for version in "${versions[@]}"; do
-      if [[ $(pip-grep -s --print-req $REQ_TXT $pkg) == "${pkg}==${version}" ]]; then
+      if [[ $(pip-grep --silent --print-req $REQ_TXT $pkg) == "${pkg}==${version}" ]]; then
         install_version=$version
       fi
     done
