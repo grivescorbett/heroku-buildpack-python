@@ -38,19 +38,19 @@ function install_prebuilt {
   local install_version=""
 
   # First ensure that the package is specified
-  if ! $(pip-grep --silent requirements.txt $pkg); then
+  if ! $(pip-grep --silent $REQ_TXT $pkg); then
     puts-step "$pkg not specified!"
     return
   fi
 
   # Now determine the version used.
   # If no version is specified, the default version is used (last version in the array passed).
-  if [[ $(pip-grep --silent --print-req requirements.txt $pkg) == "$pkg" ]]; then
+  if [[ $(pip-grep --silent --print-req $REQ_TXT $pkg) == "$pkg" ]]; then
     install_version=${versions[${#versions[@]} - 1]}
     puts-step "No version specified for $pkg. Using $install_version."
   else
     for version in "${versions[@]}"; do
-      if [[ $(pip-grep --silent --print-req requirements.txt $pkg) == "${pkg}==${version}" ]]; then
+      if [[ $(pip-grep --silent --print-req $REQ_TXT $pkg) == "${pkg}==${version}" ]]; then
         install_version=$version
       fi
     done
@@ -85,11 +85,12 @@ function install_prebuilt {
   rm -rf venv "${name}.tar.gz"
 }
 
+REQ_TXT=$(pwd)/requirements.txt
 NUMPY_VERSIONS=(1.6.2 1.7.2 1.8.1 1.8.2 1.9.0 1.9.1 1.9.2)
 SCIPY_VERSIONS=(0.13.3 0.14.0 0.15.1)
 
 if (pip-grep -s requirements.txt numpy scipy &> /dev/null); then
-  puts-step "Detected numpy/scipy in requirements.txt."
+  puts-step "Detected numpy/scipy in $REQ_TXT."
   cd .heroku
 
   install_binaries
