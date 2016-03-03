@@ -4,8 +4,8 @@ puts-step "Installing dependencies with pip"
 [ ! "$FRESH_PYTHON" ] && bpwatch start pip_install
 [ "$FRESH_PYTHON" ] && bpwatch start pip_install_first
 
-set-env LIBRARY_PATH $LIBRARY_PATH:/app/vendor/lib/atlas-base:/app/vendor/lib/atlas-base/atlas
-set-env LD_LIBRARY_PATH $LD_LIBRARY_PATH:/app/vendor/lib/atlas-base:/app/vendor/lib/atlas-base/atlas
+set-env LIBRARY_PATH $LIBRARY_PATH:/app/.heroku/vendor/lib/atlas-base:/app/.heroku/vendor/lib/atlas-base/atlas
+set-env LD_LIBRARY_PATH $LD_LIBRARY_PATH:/app/.heroku/vendor/lib/atlas-base:/app/.heroku/vendor/lib/atlas-base/atlas
 
 set +e
 /app/.heroku/python/bin/pip install -r requirements.txt --exists-action=w --src=./.heroku/src --disable-pip-version-check --no-cache-dir | cleanup | log-output | indent
