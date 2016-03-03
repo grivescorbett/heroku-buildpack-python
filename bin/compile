@@ -196,7 +196,7 @@ source $BIN_DIR/steps/gdal
 source $BIN_DIR/steps/boost-python
 
 # Scientific packages
-source $BIN_DIR/steps/scientific
+source $BIN_DIR/steps/conda
 
 # Install dependencies with Pip.
 source $BIN_DIR/steps/pip-install
