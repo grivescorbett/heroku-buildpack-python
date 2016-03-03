@@ -96,7 +96,7 @@ if (pip-grep -s requirements.txt numpy scipy &> /dev/null); then
   install_binaries
 
   install_prebuilt "numpy" NUMPY_VERSIONS[@]
-  install_prebuilt "scipy" SCIPY_VERSIONS[@]
+  # install_prebuilt "scipy" SCIPY_VERSIONS[@]
 
   cd ..
 fi
