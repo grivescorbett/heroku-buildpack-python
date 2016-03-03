@@ -24,8 +24,6 @@ function install_binaries {
     curl -O "${VENDORED_GIT_PREFIX}/npscipy.tar.gz"
     tar -xzf npscipy.tar.gz &> /dev/null
     rm -f npscipy.tar.gz
-
-    ln -s /app/.heroku/vendor/lib/atlas-base/atlas/libblas.so /app/.heroku/vendor/lib/atlas-base/atlas/libblas.so.3
   fi
   set-env BLAS $(pwd)/vendor/lib/atlas-base/atlas/libblas.a
   set-env LAPACK $(pwd)/vendor/lib/atlas-base/atlas/liblapack.a
@@ -102,3 +100,9 @@ if (pip-grep -s requirements.txt numpy scipy &> /dev/null); then
 
   cd ..
 fi
+
+if [ ! -f "/app/.heroku/vendor/lib/atlas-base/atlas/libblas.so.3" ]; then
+  ln -s /app/.heroku/vendor/lib/atlas-base/atlas/libblas.so /app/.heroku/vendor/lib/atlas-base/atlas/libblas.so.3
+fi
+
+
