@@ -28,8 +28,8 @@ function install_binaries {
   set-env BLAS $(pwd)/vendor/lib/atlas-base/atlas/libblas.a
   set-env LAPACK $(pwd)/vendor/lib/atlas-base/atlas/liblapack.a
   set-env ATLAS $(pwd)/vendor/lib/atlas-base/libatlas.a
-  set-env LIBRARY_PATH $LIBRARY_PATH:$(pwd)/vendor/lib/atlas-base:$(pwd)/vendor/lib/atlas-base/atlas
-  set-env LD_LIBRARY_PATH $LD_LIBRARY_PATH:$(pwd)/vendor/lib/atlas-base:$(pwd)/vendor/lib/atlas-base/atlas
+  set-env LIBRARY_PATH '$LIBRARY_PATH:/app/.heroku/vendor/lib/atlas-base:/app/.heroku/vendor/lib/atlas-base/atlas'
+  set-env LD_LIBRARY_PATH '$LD_LIBRARY_PATH:/app/.heroku/vendor/lib/atlas-base:/app/.heroku/vendor/lib/atlas-base/atlas'
 }
 
 function install_prebuilt {
