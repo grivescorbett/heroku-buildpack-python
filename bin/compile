@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# The Heroku Python Buildpack. This script accepts parameters for a build
+# directory, a cache directory, and a directory for app environment variables.
+
+# Warning: there are a few hacks in this script to accommodate excellent builds
+# on Heroku. No guarantee for external compatibility is made. However,
+# everything should work fine outside of the Heroku environment, if the
+# environment is setup correctly.
+
 # Usage:
 #
 #     $ bin/compile <build-dir> <cache-dir> <env-path>
@@ -24,13 +32,14 @@ VIRTUALENV_LOC=".heroku/venv"
 LEGACY_TRIGGER="lib/python2.7"
 
 DEFAULT_PYTHON_VERSION="python-2.7.11"
-DEFAULT_PYTHON_STACK="cedar"
+DEFAULT_PYTHON_STACK="cedar-14"
 PYTHON_EXE="/app/.heroku/python/bin/python"
 PIP_VERSION="8.1.1"
-SETUPTOOLS_VERSION="19.6"
+SETUPTOOLS_VERSION="20.4"
 
 # Common Problem Warnings
 export WARNINGS_LOG=$(mktemp)
+export RECOMMENDED_PYTHON_VERSION=$DEFAULT_PYTHON_VERSION
 
 # Setup bpwatch
 export PATH=$PATH:$ROOT_DIR/vendor/bpwatch
@@ -48,7 +57,10 @@ export PATH=$PATH:$ROOT_DIR/vendor/pip-pop
 
 # Sanitizing environment variables.
 unset GIT_DIR PYTHONHOME PYTHONPATH LD_LIBRARY_PATH LIBRARY_PATH
+unset RECEIVE_DATA RUN_KEY BUILD_INFO DEPLOY LOG_TOKEN DYNO
+unset CYTOKINE_LOG_FILE GEM_PATH
 
+# Setup buildpack instrumentation.
 bpwatch init $LOGPLEX_KEY
 bpwatch build python $BUILDPACK_VERSION $REQUEST_ID
 TMP_APP_DIR=$CACHE_DIR/tmp_app_dir
@@ -61,7 +73,7 @@ source $BIN_DIR/utils
 # Import collection of warnings.
 source $BIN_DIR/warnings
 
-# Directory Hacks for path consistiency.
+# Directory Hacks for path consistency.
 APP_DIR='/app'
 TMP_APP_DIR=$CACHE_DIR/tmp_app_dir
 
@@ -91,20 +103,20 @@ BUILD_DIR=$APP_DIR
 
 # Set up outputs under new context
 PROFILE_PATH="$BUILD_DIR/.profile.d/python.sh"
-WEBCONCURRENCY_PROFILE_PATH="$BUILD_DIR/.profile.d/python.webconcurrency.sh"
+GUNICORN_PROFILE_PATH="$BUILD_DIR/.profile.d/python.gunicorn.sh"
 
 # We'll need to send these statics to other scripts we `source`.
 export BUILD_DIR CACHE_DIR BIN_DIR PROFILE_PATH
 
-# Prepend proper path buildpack use.
+# Prepend proper environment variables for Python use.
 export PATH=$BUILD_DIR/.heroku/python/bin:$BUILD_DIR/.heroku/vendor/bin:$PATH
 export PYTHONUNBUFFERED=1
 export LANG=en_US.UTF-8
-export C_INCLUDE_PATH=/app/.heroku/vendor/include:$BUILD_DIR/.heroku/vendor/include:/app/.heroku/python/include
-export CPLUS_INCLUDE_PATH=/app/.heroku/vendor/include:$BUILD_DIR/.heroku/vendor/include:/app/.heroku/python/include
-export LIBRARY_PATH=/app/.heroku/vendor/lib:$BUILD_DIR/.heroku/vendor/lib:/app/.heroku/python/lib
-export LD_LIBRARY_PATH=/app/.heroku/vendor/lib:$BUILD_DIR/.heroku/vendor/lib:/app/.heroku/python/lib
-export PKG_CONFIG_PATH=/app/.heroku/vendor/lib/pkg-config:$BUILD_DIR/.heroku/vendor/lib/pkg-config:/app/.heroku/python/lib/pkg-config
+export C_INCLUDE_PATH=/app/.heroku/vendor/include:$BUILD_DIR/.heroku/vendor/include:/app/.heroku/python/include:$C_INCLUDE_PATH
+export CPLUS_INCLUDE_PATH=/app/.heroku/vendor/include:$BUILD_DIR/.heroku/vendor/include:/app/.heroku/python/include:$CPLUS_INCLUDE_PATH
+export LIBRARY_PATH=/app/.heroku/vendor/lib:$BUILD_DIR/.heroku/vendor/lib:/app/.heroku/python/lib:$LIBRARY_PATH
+export LD_LIBRARY_PATH=/app/.heroku/vendor/lib:$BUILD_DIR/.heroku/vendor/lib:/app/.heroku/python/lib:$LD_LIBRARY_PATH
+export PKG_CONFIG_PATH=/app/.heroku/vendor/lib/pkg-config:$BUILD_DIR/.heroku/vendor/lib/pkg-config:/app/.heroku/python/lib/pkg-config:$PKG_CONFIG_PATH
 
 # Switch to the repo's context.
 cd $BUILD_DIR
@@ -120,7 +132,7 @@ bpwatch start pre_compile
   source $BIN_DIR/steps/hooks/pre_compile
 bpwatch stop pre_compile
 
-# If no requirements given, assume `setup.py develop`.
+# If no requirements.txt file given, assume `setup.py develop` is intended.
 if [ ! -f requirements.txt ]; then
   echo "-e ." > requirements.txt
 fi
@@ -135,7 +147,7 @@ fi
 if [ -f $CACHE_DIR/.heroku/python-stack ]; then
   CACHED_PYTHON_STACK=$(cat $CACHE_DIR/.heroku/python-stack)
 else
-  CACHED_PYTHON_STACK=$DEFAULT_PYTHON_STACK
+  CACHED_PYTHON_STACK=$STACK
 fi
 
 # If no runtime given, assume default version.
@@ -143,7 +155,7 @@ if [ ! -f runtime.txt ]; then
   echo $DEFAULT_PYTHON_VERSION > runtime.txt
 fi
 
-# ### The Cache
+# Prepare the cache.
 mkdir -p $CACHE_DIR
 
 # Purge "old-style" virtualenvs.
@@ -189,6 +201,9 @@ source $BIN_DIR/steps/pylibmc
 # Libffi support.
 source $BIN_DIR/steps/cryptography
 
+# Support for Geo libraries.
+sub-env $BIN_DIR/steps/geo-libs
+
 # GDAL support.
 source $BIN_DIR/steps/gdal
 
@@ -199,10 +214,7 @@ source $BIN_DIR/steps/pip-install
 sub-env $BIN_DIR/steps/collectstatic
 
 
-# ### Finalize
-#
-
-# Set context environment variables.
+# Create .profile script for application runtime environment variables.
 set-env PATH '$HOME/.heroku/python/bin:$PATH'
 set-env PYTHONUNBUFFERED true
 set-env PYTHONHOME /app/.heroku/python
@@ -212,8 +224,8 @@ set-default-env LANG en_US.UTF-8
 set-default-env PYTHONHASHSEED random
 set-default-env PYTHONPATH /app/
 
-# Install sane-default script for WEB_CONCURRENCY environment variable.
-cp $ROOT_DIR/vendor/python.webconcurrency.sh $WEBCONCURRENCY_PROFILE_PATH
+# Install sane-default script for $WEB_CONCURRENCY and $FORWARDED_ALLOW_IPS.
+cp $ROOT_DIR/vendor/python.gunicorn.sh $GUNICORN_PROFILE_PATH
 
 
 # Experimental post_compile hook.
@@ -239,7 +251,7 @@ bpwatch start dump_cache
 
 bpwatch stop dump_cache
 
-# ### Fin.
+# Fin.
 if [[ ! "$DOCKER_BUILD" ]]; then
 
   bpwatch start appdir_commit

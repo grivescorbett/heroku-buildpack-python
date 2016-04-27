@@ -4,7 +4,7 @@
 # [**Python Buildpack**](https://github.com/heroku/heroku-buildpack-python)
 # compiler.
 #
-# A [buildpack](http://devcenter.heroku.com/articles/buildpacks) is an
+# A [buildpack](https://devcenter.heroku.com/articles/buildpacks) is an
 # adapter between a Python application and Heroku's runtime.
 #
 # This script is invoked by [`bin/compile`](/).
@@ -20,7 +20,7 @@ source $BIN_DIR/utils
 bpwatch start gdal_install
 
 # If GDAL exists within requirements, use vendored gdal.
-if (pip-grep -s requirements.txt GDAL &> /dev/null) then
+if (pip-grep -s requirements.txt GDAL gdal pygdal &> /dev/null) then
 
   if [ -f ".heroku/vendor/bin/gdalserver" ]; then
     export GDAL=$(pwd)/vendor

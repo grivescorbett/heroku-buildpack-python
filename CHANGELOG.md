@@ -1,5 +1,42 @@
 # Python Buildpack Changelog
 
+## v80 (2016-04-05)
+
+Improved pip-pop compatibility with latest pip releases.
+
+## v79 (2016-03-22)
+
+Compatibility improvements with heroku-apt-buildpack.
+
+## v78 (2016-03-18)
+
+Added automatic configuration of Gunicorn's `FORWARDED_ALLOW_IPS` setting.
+
+Improved detection of libffi dependency when using bcrypt via `Django[bcrypt]`.
+
+Improved GDAL support.
+
+- GDAL dependency detection now checks for pygdal and is case-insensitive.
+- The vendored GDAL library has been updated to 1.11.1.
+- GDAL bootstrapping now also installs the GEOS and Proj.4 libraries.
+
+Updated pip to 8.1.1 and setuptools to 20.3.
+
+## v77 (2016-02-10)
+
+Improvements to warnings and minor bugfix.
+
+## v76 (2016-02-08)
+
+Improved Django collectstatic support.
+
+- `$ python manage.py collectstatic` will only be run if `Django` is present in `requirements.txt`.
+- If collectstatic fails, the build fails. Full traceback is provided.
+- `$DISABLE_COLLECTSTATIC`: skip collectstatic step completely (not new).
+- `$DEBUG_COLLECTSTATIC`: echo environment variables upon collectstatic failure.
+- Updated build output style.
+- New warning for outdated Python (via pip `InsecurePlatform` warning).
+
 ## v75 (2016-01-29)
 
 Updated pip and Setuptools.
